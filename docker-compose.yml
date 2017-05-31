@@ -6,11 +6,16 @@ services:
     command: python app.py
     volumes:
      - ./vote:/app
+     - bolton:/bolton
     ports:
       - "5000:80"
     networks:
       - front-tier
       - back-tier
+    environment:
+      - LD_PRELOAD=/bolton/wrap.so
+      - WRAP_EVENT_DEST=bolton:12345
+      - WRAP_EVENT_QUERY=all
 
   result:
     build: ./result
@@ -45,8 +50,23 @@ services:
     networks:
       - back-tier
 
+  bolton:
+    image: taktak/bolton-demo
+    container_name: bolton
+    networks:
+      - back-tier
+    ports:
+      - "9999:9999"
+      - "12345:12345"
+    environment:
+      - BOLTON_ALLOWREMOTE=1
+    volumes:
+      - bolton:/bolton
+    command: bolton -vv daemon
+
 volumes:
   db-data:
+  bolton:
 
 networks:
   front-tier:
