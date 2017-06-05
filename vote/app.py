@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, make_response, g
 from redis import Redis
-import os
+import os,ssl
 import socket
 import random
 import json
@@ -8,6 +8,11 @@ import json
 option_a = os.getenv('OPTION_A', "Cats")
 option_b = os.getenv('OPTION_B', "Dogs")
 hostname = socket.gethostname()
+
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+cer = os.path.join(os.path.dirname(__file__), 'tmp/cert.pem')
+key = os.path.join(os.path.dirname(__file__), 'tmp/key.pem')
+context.load_cert_chain(cer, key)
 
 app = Flask(__name__)
 
@@ -42,4 +47,4 @@ def hello():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80, debug=True, threaded=True)
+    app.run(host='0.0.0.0', port=80, debug=True, threaded=True, ssl_context=context)
