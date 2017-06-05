@@ -5,7 +5,7 @@ services:
     build: ./vote
     command: python app.py
     volumes:
-     - ./vote:/app
+     - ${VOTEAPP_PATH:-.}/vote:/app
      - bolton:/bolton
     ports:
       - "5000:80"
@@ -21,13 +21,18 @@ services:
     build: ./result
     command: nodemon --debug server.js
     volumes:
-      - ./result:/app
+      - ${VOTEAPP_PATH:-.}/result:/app
+      - bolton:/bolton
     ports:
       - "5001:80"
       - "5858:5858"
     networks:
       - front-tier
       - back-tier
+    environment:
+      - LD_PRELOAD=/bolton/wrap.so
+      - WRAP_EVENT_DEST=bolton:12345
+      - WRAP_EVENT_QUERY=all
 
   worker:
     build:
