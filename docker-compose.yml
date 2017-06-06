@@ -13,7 +13,7 @@ services:
       - front-tier
       - back-tier
     environment:
-      - LD_PRELOAD=/bolton/wrap.so
+      - LD_PRELOAD=/bolton/libwrap.so
       - WRAP_EVENT_DEST=bolton:12345
       - WRAP_EVENT_QUERY=all
 
@@ -30,7 +30,7 @@ services:
       - front-tier
       - back-tier
     environment:
-      - LD_PRELOAD=/bolton/wrap.so
+      - LD_PRELOAD=/bolton/libwrap.so
       - WRAP_EVENT_DEST=bolton:12345
       - WRAP_EVENT_QUERY=all
 
