@@ -6,6 +6,7 @@ services:
     command: python app.py
     volumes:
      - ${VOTEAPP_PATH:-.}/vote:/app
+     - bolton:/bolton
     ports:
       - "5000:80"
     networks:
@@ -21,6 +22,7 @@ services:
     command: nodemon --debug server.js
     volumes:
       - ${VOTEAPP_PATH:-.}/result:/app
+      - bolton:/bolton
     ports:
       - "5001:80"
       - "5858:5858"
