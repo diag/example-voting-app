@@ -7,7 +7,8 @@ import json
 
 option_a = os.getenv('OPTION_A', "Cats")
 option_b = os.getenv('OPTION_B', "Dogs")
-hostname = socket.gethostname()
+option_c = os.getenv('OPTION_C', "Cows")
+hostname = socket.gethostname() 
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 cer = os.path.join(os.path.dirname(__file__), 'tmp/cert.pem')
@@ -16,10 +17,30 @@ context.load_cert_chain(cer, key)
 
 app = Flask(__name__)
 
+
+class InvalidUsage(Exception):
+    status_code = 400
+
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
+
 def get_redis():
     if not hasattr(g, 'redis'):
         g.redis = Redis(host="redis", db=0, socket_timeout=5)
     return g.redis
+
+@app.errorhandler(InvalidUsage)
+def handle_bad_request(e):
+    return 'bad request!'
 
 @app.route("/", methods=['POST','GET'])
 def hello():
@@ -33,12 +54,15 @@ def hello():
         redis = get_redis()
         vote = request.form['vote']
         data = json.dumps({'voter_id': voter_id, 'vote': vote})
+        if vote not in ['a', 'b']:
+            raise InvalidUsage('Vote %s is invalid', vote)
         redis.rpush('votes', data)
 
     resp = make_response(render_template(
         'index.html',
         option_a=option_a,
         option_b=option_b,
+        option_c=option_c,
         hostname=hostname,
         vote=vote,
     ))
