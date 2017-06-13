@@ -70,6 +70,7 @@ services:
     
 volumes:
   db-data:
+  bolton:
 
 networks:
   front-tier:
