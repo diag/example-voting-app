@@ -5,24 +5,32 @@ services:
     build: ./vote
     command: python app.py
     volumes:
-     - ./vote:/app
+     - ${VOTEAPP_PATH:-.}/vote:/app
     ports:
       - "5000:80"
     networks:
       - front-tier
       - back-tier
+    environment:
+      - LD_PRELOAD=/bolton/libwrap.so
+      - WRAP_EVENT_DEST=bolton:12345
+      - WRAP_EVENT_QUERY=all
 
   result:
     build: ./result
     command: nodemon --debug server.js
     volumes:
-      - ./result:/app
+      - ${VOTEAPP_PATH:-.}/result:/app
     ports:
       - "5001:80"
       - "5858:5858"
     networks:
       - front-tier
       - back-tier
+    environment:
+      - LD_PRELOAD=/bolton/libwrap.so
+      - WRAP_EVENT_DEST=bolton:12345
+      - WRAP_EVENT_QUERY=all
 
   worker:
     build:
@@ -46,6 +54,20 @@ services:
     networks:
       - back-tier
 
+  bolton:
+    image: taktak/bolton-demo
+    container_name: bolton
+    networks:
+      - back-tier
+    ports:
+      - "9999:9999"
+      - "12345:12345"
+    environment:
+      - BOLTON_ALLOWREMOTE=1
+    volumes:
+      - bolton:/bolton
+    command: bolton -vv daemon
+    
 volumes:
   db-data:
 
