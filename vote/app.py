@@ -40,7 +40,7 @@ def get_redis():
 
 @app.errorhandler(InvalidUsage)
 def handle_bad_request(e):
-    return 'bad request!'
+    return 'bad request!', 400
 
 @app.route("/", methods=['POST','GET'])
 def hello():
